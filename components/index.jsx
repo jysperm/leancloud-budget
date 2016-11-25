@@ -9,9 +9,9 @@ export default class LeanCloudBudget extends Component {
     this.state = {
       totalUsers: 10,
       dailyUsersPercent: 10,
-      dailyActiveDuration: 20,
+      sessionsPerDay: 10,
       dailyActiveHours: 4,
-      requestPerMinute: 5,
+      requestsPerSession: 5,
       responseTime: 20
     };
   }
@@ -25,9 +25,9 @@ export default class LeanCloudBudget extends Component {
       }
     };
 
-    const {totalUsers, dailyUsersPercent, dailyActiveDuration, dailyActiveHours, requestPerMinute, responseTime} = this.state;
+    const {totalUsers, dailyUsersPercent, sessionsPerDay, dailyActiveHours, requestsPerSession, responseTime} = this.state;
 
-    const requestPreDay = totalUsers * 10000 * (dailyUsersPercent * 0.01) * dailyActiveDuration * requestPerMinute;
+    const requestPreDay = totalUsers * 10000 * (dailyUsersPercent * 0.01) * sessionsPerDay * requestsPerSession;
     const qps = requestPreDay / (dailyActiveHours * 3600);
     const concurrency = qps / (1000 / responseTime);
 
@@ -43,19 +43,21 @@ export default class LeanCloudBudget extends Component {
         <div>其实这些用户里没多少人会每天打开你的应用</div>
       </div>
       <div className='well'>
-        <strong>平均每日用户活跃时间（{dailyActiveDuration} 分钟）</strong> &nbsp;
-        <ReactBootstrapSlider value={dailyActiveDuration} min={1} max={60} change={onChanged('dailyActiveDuration')}/>
-        <div>平均每个用户每天打开你的应用的时间（iPhone 用户可以在「电池统计」里看到你使用每个应用的时间）</div>
+        <strong>用户平均每日打开次数（{sessionsPerDay} 次）</strong> &nbsp;
+        <ReactBootstrapSlider value={sessionsPerDay} min={1} max={30} change={onChanged('sessionsPerDay')}/>
+        <div>平均每个用户每天打开你的应用的次数</div>
       </div>
       <div className='well'>
-        <strong>每分钟请求数量（{requestPerMinute} 次）</strong> &nbsp;
-        <ReactBootstrapSlider value={requestPerMinute} min={1} max={30} change={onChanged('requestPerMinute')}/>
-        <div>你的应用在活跃的状态下每分钟发起的请求数量</div>
+        <strong>用户单次打开请求数量（{requestsPerSession} 次）</strong> &nbsp;
+        <ReactBootstrapSlider value={requestsPerSession} min={1} max={30} change={onChanged('requestsPerSession')}/>
+        <div>用户每次打开你的应用所产生的请求数量</div>
       </div>
       <div className='well'>
         <strong>平均响应时间（{responseTime} 毫秒）</strong> &nbsp;
-        <ReactBootstrapSlider value={responseTime} min={10} max={1000} change={onChanged('responseTime')}/>
-        <div>复杂的查询需要更长的处理时间</div>
+        <ReactBootstrapSlider value={responseTime} min={15} max={50} ticks={[15, 20, 30, 50]}
+          ticks_positions={[0, 20, 50, 100]} ticks_snap_bounds={20}
+          ticks_labels={["15ms", "20ms", "30ms", "50ms"]} change={onChanged('responseTime')}/>
+        <div>复杂的查询需要更长的处理时间：20ms 是通常的平均响应时间；如果你的请求都是对单个对象查询那么可以选择 15ms；如果你的应用每次都会查询大量的对象那么可以选择 30ms；如果你的应用每次都用复杂的筛选和排序条件查询大量对象那么可以选择 50ms</div>
       </div>
       <div className='well'>
         <strong>用户主要活跃时间段（{dailyActiveHours} 小时）</strong> &nbsp;
